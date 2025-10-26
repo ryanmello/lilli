@@ -2,7 +2,7 @@
 
 ## What You Have Now
 
-A **complete, detailed plan** for building an AI agent system for flower shops using Python and LangGraph.
+A **complete, detailed plan** for building an AI agent system for flower shops using Python, FastAPI, WebSockets, and LangGraph.
 
 ---
 
@@ -76,10 +76,10 @@ Proper Python and project-specific ignore patterns.
 
 ## 🎯 Key System Components
 
-### Core Architecture: Orchestrator + 5 Specialized Agents
+### Core Architecture: FastAPI + WebSocket + Orchestrator + 5 Specialized Agents
 
 ```
-Terminal → Orchestrator → [Inventory | Orders | Customer Service | Design | Delivery]
+Frontend (WebSocket/REST) ↔ FastAPI Server → Orchestrator → [Inventory | Orders | Customer Service | Design | Delivery]
 ```
 
 ### **1. Orchestrator Agent**
@@ -145,12 +145,14 @@ Terminal → Orchestrator → [Inventory | Orders | Customer Service | Design | 
 | Component | Technology |
 |-----------|-----------|
 | **Language** | Python 3.10+ |
+| **Web Framework** | FastAPI |
+| **Real-time Communication** | WebSockets |
+| **ASGI Server** | Uvicorn |
 | **AI Framework** | LangGraph (workflow orchestration) |
 | **LLM Integration** | LangChain |
 | **LLM Providers** | OpenAI (GPT-4) or Anthropic (Claude) |
 | **Database** | SQLite (dev) / PostgreSQL (prod) |
 | **ORM** | SQLAlchemy |
-| **CLI Framework** | Typer + Rich (beautiful terminal UI) |
 | **Validation** | Pydantic |
 | **Logging** | Structlog |
 | **Testing** | Pytest |
@@ -162,8 +164,9 @@ Terminal → Orchestrator → [Inventory | Orders | Customer Service | Design | 
 ### **Phase 1: Foundation** (Weeks 1-2)
 - Project structure
 - Database setup
-- Basic CLI
+- FastAPI server with WebSocket support
 - LLM connection
+- API documentation
 
 ### **Phase 2: Orchestrator** (Week 3)
 - Intent classification
@@ -210,6 +213,11 @@ OPENAI_API_KEY=your_key_here
 ANTHROPIC_API_KEY=your_key_here
 LLM_PROVIDER=openai
 DATABASE_URL=sqlite:///lilli.db
+
+# API Server Settings
+API_HOST=0.0.0.0
+API_PORT=8000
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
 ```
 
 ### 3. Initialize Database
@@ -217,14 +225,26 @@ DATABASE_URL=sqlite:///lilli.db
 python -m src.database.init_db
 ```
 
-### 4. Run the Agent
+### 4. Run the API Server
 ```bash
-python -m src.main
+uvicorn src.api.server:app --reload --host 0.0.0.0 --port 8000
 ```
+
+Access:
+- WebSocket: `ws://localhost:8000/ws/{client_id}`
+- REST API: `http://localhost:8000/api/query`
+- API Docs: `http://localhost:8000/docs`
 
 ---
 
 ## 💡 Key Design Decisions
+
+### Why FastAPI + WebSockets?
+- **Real-time Communication**: Bidirectional streaming for instant updates
+- **High Performance**: Async/await support, one of fastest Python frameworks
+- **Auto Documentation**: OpenAPI/Swagger docs auto-generated
+- **Modern**: Type hints, Pydantic validation built-in
+- **Production Ready**: CORS, security, middleware support
 
 ### Why LangGraph?
 - **State Management**: Built-in state handling for complex workflows
@@ -248,26 +268,43 @@ python -m src.main
 
 ## 🎨 Example User Interactions
 
-### Simple Query
-```
-🌸 You: Do we have red roses?
-🤖 lilli: Yes, we have 150 stems of red roses in stock.
+### Simple Query (WebSocket)
+```javascript
+// Frontend sends
+ws.send(JSON.stringify({
+  query: "Do we have red roses?",
+  context: {}
+}));
+
+// Backend responds
+{
+  "type": "response",
+  "message": "Yes, we have 150 stems of red roses in stock.",
+  "intent": "inventory_check",
+  "agents_used": ["inventory"]
+}
 ```
 
 ### Complex Multi-Agent Query
-```
-🌸 You: I need a wedding bouquet with roses delivered tomorrow to 90210
+```javascript
+// Frontend sends
+ws.send(JSON.stringify({
+  query: "I need a wedding bouquet with roses delivered tomorrow to 90210",
+  context: {}
+}));
 
-🤖 lilli: [Engages Design → Inventory → Delivery → Order agents]
+// Backend streams updates
+{"type": "processing", "message": "Creating design..."}
+{"type": "processing", "message": "Checking inventory..."}
+{"type": "processing", "message": "Verifying delivery..."}
 
-I'll help you create a beautiful wedding bouquet!
-
-Design: Elegant rose bridal bouquet with 18 white roses...
-Availability: All flowers in stock ✓
-Delivery: Tomorrow to 90210 available ✓
-Total: $215.00
-
-Would you like to proceed with this order?
+// Final response
+{
+  "type": "response",
+  "message": "Perfect! I can create a beautiful wedding bouquet...\n\nDesign: Elegant rose bridal bouquet\nAvailability: All flowers in stock ✓\nDelivery: Tomorrow to 90210 ✓\nTotal: $215.00",
+  "intent": "design_request",
+  "agents_used": ["design", "inventory", "delivery", "order"]
+}
 ```
 
 ---
@@ -322,8 +359,9 @@ The system is designed for easy customization:
 1. Create agent class in `src/agents/`
 2. Define tools in `src/tools/`
 3. Add to workflow in `src/graph/workflow.py`
-4. Update routing logic
-5. Add tests
+4. Update routing logic in orchestrator
+5. Update API models if needed (in `src/api/models.py`)
+6. Add tests
 
 ### Add New Tools
 1. Define tool with `@tool` decorator
@@ -342,12 +380,14 @@ The system is designed for easy customization:
 
 The plan includes provisions for:
 
-- **Voice Interface**: Speech-to-text integration
-- **Multi-Channel**: Web API, SMS, WhatsApp
+- **Frontend Applications**: React, Vue, or mobile apps connecting via WebSocket
+- **Voice Interface**: Speech-to-text integration through API
+- **Multi-Channel**: SMS, WhatsApp via additional API endpoints
 - **Advanced Analytics**: Sales forecasting, demand prediction
-- **Proactive Agents**: Automatic alerts and reminders
+- **Proactive Agents**: Automatic alerts via WebSocket push
 - **External Integrations**: POS systems, CRM, payment processors
-- **Mobile App**: Native iOS/Android with shared backend
+- **Mobile Apps**: Native iOS/Android connecting to same API
+- **GraphQL Support**: Alternative to REST for complex queries
 
 ---
 

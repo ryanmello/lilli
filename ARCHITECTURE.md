@@ -2,7 +2,7 @@
 
 ## System Overview
 
-Lilli is a multi-agent AI system built on LangGraph that orchestrates specialized agents to handle various flower shop operations. This document provides a deep dive into the architectural decisions and implementation patterns.
+Lilli is a multi-agent AI system built on FastAPI, WebSockets, and LangGraph that orchestrates specialized agents to handle various flower shop operations via a web API. This document provides a deep dive into the architectural decisions and implementation patterns.
 
 ## Core Architectural Principles
 
@@ -28,7 +28,19 @@ New agents and tools can be added without modifying existing components, followi
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                  Presentation Layer                      │
-│                  (Terminal Interface)                    │
+│                  (Frontend Applications)                 │
+└───────────────────────┬─────────────────────────────────┘
+                        │
+                        │ WebSocket / REST API
+                        ▼
+┌─────────────────────────────────────────────────────────┐
+│                     API Layer                            │
+│                  (FastAPI Server)                        │
+│                                                          │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐        │
+│  │ WebSocket  │  │   REST     │  │Middleware  │        │
+│  │  Handler   │  │ Endpoints  │  │ (CORS/Auth)│        │
+│  └────────────┘  └────────────┘  └────────────┘        │
 └───────────────────────┬─────────────────────────────────┘
                         │
 ┌───────────────────────┴─────────────────────────────────┐
@@ -68,6 +80,165 @@ New agents and tools can be added without modifying existing components, followi
 │  │          │  │          │  │  APIs    │             │
 │  └──────────┘  └──────────┘  └──────────┘             │
 └─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## API Layer Architecture
+
+### FastAPI Server
+
+The API layer handles all communication with frontend applications through WebSocket and REST endpoints.
+
+```python
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from typing import Dict
+import json
+
+app = FastAPI(
+    title="Lilli AI Agent API",
+    description="Intelligent flower shop management system",
+    version="1.0.0"
+)
+
+# CORS Middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Configure for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class ConnectionManager:
+    """Manages WebSocket connections"""
+    def __init__(self):
+        self.active_connections: Dict[str, WebSocket] = {}
+    
+    async def connect(self, websocket: WebSocket, client_id: str):
+        await websocket.accept()
+        self.active_connections[client_id] = websocket
+        
+    def disconnect(self, client_id: str):
+        if client_id in self.active_connections:
+            del self.active_connections[client_id]
+    
+    async def send_message(self, client_id: str, message: dict):
+        if client_id in self.active_connections:
+            await self.active_connections[client_id].send_json(message)
+
+manager = ConnectionManager()
+```
+
+### WebSocket Handler
+
+Real-time bidirectional communication for streaming responses:
+
+```python
+@app.websocket("/ws/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: str):
+    await manager.connect(websocket, client_id)
+    
+    try:
+        while True:
+            # Receive query from client
+            data = await websocket.receive_text()
+            message = json.loads(data)
+            
+            # Send processing status
+            await manager.send_message(client_id, {
+                "type": "processing",
+                "message": "Processing your request..."
+            })
+            
+            # Process through LangGraph workflow
+            async for update in process_query_stream(
+                message.get("query"),
+                message.get("context", {})
+            ):
+                await manager.send_message(client_id, update)
+                
+    except WebSocketDisconnect:
+        manager.disconnect(client_id)
+```
+
+### REST API Endpoints
+
+Alternative HTTP-based interface:
+
+```python
+from pydantic import BaseModel
+
+class QueryRequest(BaseModel):
+    query: str
+    session_id: str | None = None
+    context: Dict | None = None
+
+class QueryResponse(BaseModel):
+    message: str
+    intent: str | None = None
+    agents_used: list[str] | None = None
+    metadata: Dict | None = None
+
+@app.post("/api/query", response_model=QueryResponse)
+async def query_endpoint(request: QueryRequest):
+    """Process query via REST API"""
+    response = await process_query_async(
+        request.query,
+        request.context or {}
+    )
+    return QueryResponse(**response)
+
+@app.get("/api/health")
+async def health_check():
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "service": "lilli-api",
+        "version": "1.0.0"
+    }
+```
+
+### Communication Flow
+
+```
+Frontend Application
+        │
+        ▼
+┌─────────────────┐
+│  WebSocket or   │
+│   REST Request  │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  FastAPI Server │
+│  - Validate     │
+│  - Authenticate │
+│  - Route        │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Orchestrator   │
+│  LangGraph      │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Specialized    │
+│  Agents         │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Response       │
+│  Streaming      │
+└────────┬────────┘
+         │
+         ▼
+Frontend Application
 ```
 
 ---

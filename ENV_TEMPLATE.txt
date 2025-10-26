@@ -90,18 +90,35 @@ ENABLE_CONVERSATION_MEMORY=true
 ENABLE_QUERY_CACHING=true
 
 # -----------------------------------------------------------------------------
-# Terminal UI Settings
+# API Server Settings
 # -----------------------------------------------------------------------------
 
-# Color scheme for terminal output
-TERMINAL_COLOR_SCHEME=default
-# Options: default, dark, light, colorblind
+# API Server Host
+API_HOST=0.0.0.0
+API_PORT=8000
 
-# Enable rich formatting in terminal
-ENABLE_RICH_FORMATTING=true
+# Number of worker processes (for production)
+API_WORKERS=4
 
-# File path for command history
-HISTORY_FILE=.lilli_history
+# CORS Origins (comma-separated)
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173,http://localhost:8080
+# For production, restrict to your actual frontend domains
+
+# API Key for external access (optional)
+# API_SECRET_KEY=your_secret_api_key_here
+
+# -----------------------------------------------------------------------------
+# WebSocket Settings
+# -----------------------------------------------------------------------------
+
+# WebSocket heartbeat interval (seconds)
+WS_HEARTBEAT_INTERVAL=30
+
+# Maximum concurrent WebSocket connections
+WS_MAX_CONNECTIONS=100
+
+# WebSocket message size limit (bytes)
+WS_MAX_MESSAGE_SIZE=1048576
 
 # -----------------------------------------------------------------------------
 # Performance & Rate Limiting

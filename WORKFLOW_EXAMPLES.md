@@ -10,8 +10,21 @@ Visual representation of how queries flow through the system.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         USER TERMINAL                            │
-│                   "Do we have red roses?"                        │
+│                      FRONTEND APPLICATION                        │
+│          User Input: "Do we have red roses?"                     │
+│          WebSocket Message Sent                                  │
+└──────────────────────────┬──────────────────────────────────────┘
+                           │
+                           │ WebSocket (ws://localhost:8000/ws)
+                           ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                       FASTAPI SERVER                             │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │ 1. Receive WebSocket message                             │  │
+│  │ 2. Validate request                                      │  │
+│  │ 3. Send "processing" status to frontend                  │  │
+│  │ 4. Forward query to Orchestrator                         │  │
+│  └──────────────────────────────────────────────────────────┘  │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
                            ▼
@@ -54,10 +67,12 @@ Visual representation of how queries flow through the system.
 │  └──────────────────────────────────────────────────────────┘  │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
+                           │ WebSocket Response
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                         USER TERMINAL                            │
+│                      FRONTEND APPLICATION                        │
 │                                                                  │
+│  Response received and displayed:                                │
 │  "Yes, we have 150 stems of red roses in stock.                 │
 │   They're fresh (received yesterday) and in excellent condition. │
 │   Would you like to create an order?"                           │
@@ -66,6 +81,7 @@ Visual representation of how queries flow through the system.
 Time: ~2 seconds
 Agents Used: 1 (Inventory)
 Tools Called: 1 (check_stock)
+Communication: WebSocket (bidirectional)
 ```
 
 ---
@@ -76,9 +92,21 @@ Tools Called: 1 (check_stock)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         USER TERMINAL                            │
-│  "I need a wedding bouquet with roses delivered tomorrow        │
-│   to 90210"                                                      │
+│                      FRONTEND APPLICATION                        │
+│  User Input: "I need a wedding bouquet with roses              │
+│   delivered tomorrow to 90210"                                  │
+│  WebSocket Message Sent                                          │
+└──────────────────────────┬──────────────────────────────────────┘
+                           │
+                           │ WebSocket Connection
+                           ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                       FASTAPI SERVER                             │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │ 1. Receive WebSocket message                             │  │
+│  │ 2. Send "processing" status to frontend                  │  │
+│  │ 3. Forward complex query to Orchestrator                 │  │
+│  └──────────────────────────────────────────────────────────┘  │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
                            ▼
@@ -245,9 +273,11 @@ Tools Called: 1 (check_stock)
 │  └──────────────────────────────────────────────────────────┘  │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
+                           │ WebSocket Response (Streaming)
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                         USER TERMINAL                            │
+│                      FRONTEND APPLICATION                        │
+│  (Receives real-time updates via WebSocket)                      │
 │                                                                  │
 │  Perfect! I can create a beautiful wedding bouquet for you:     │
 │                                                                  │
@@ -281,7 +311,8 @@ Tools Called: 1 (check_stock)
 Time: ~4-5 seconds
 Agents Used: 4 (Design, Inventory, Delivery, Order)
 Tools Called: 7 (design templates, stock checks, delivery check, pricing)
-State Transitions: 6 (orchestrator → agents → synthesis → output)
+State Transitions: 6 (FastAPI → orchestrator → agents → synthesis → output)
+Communication: WebSocket with real-time status updates
 ```
 
 ---
@@ -292,8 +323,17 @@ State Transitions: 6 (orchestrator → agents → synthesis → output)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         USER TERMINAL                            │
-│       "What's popular this season and do we have stock?"         │
+│                      FRONTEND APPLICATION                        │
+│       User Input: "What's popular this season and do we have    │
+│                    stock?"                                       │
+│       WebSocket Message Sent                                     │
+└──────────────────────────┬──────────────────────────────────────┘
+                           │
+                           │ WebSocket Connection
+                           ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                       FASTAPI SERVER                             │
+│  Receives request, forwards to Orchestrator                      │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
                            ▼
@@ -364,7 +404,8 @@ State Transitions: 6 (orchestrator → agents → synthesis → output)
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                         USER TERMINAL                            │
+│                      FRONTEND APPLICATION                        │
+│  (Displays combined response)                                    │
 │                                                                  │
 │  Great question! Here's what's popular this fall:                │
 │                                                                  │
@@ -396,6 +437,7 @@ State Transitions: 6 (orchestrator → agents → synthesis → output)
 Time: ~2.5 seconds (parallel execution saves ~1.5s)
 Agents Used: 2 (Customer Service, Inventory) - executed in parallel
 Tools Called: 5 total
+Communication: WebSocket (bidirectional, real-time)
 ```
 
 ---
@@ -406,8 +448,16 @@ Tools Called: 5 total
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         USER TERMINAL                            │
-│                "I want to order 100 blue orchids"                │
+│                      FRONTEND APPLICATION                        │
+│          User Input: "I want to order 100 blue orchids"         │
+│          WebSocket Message Sent                                  │
+└──────────────────────────┬──────────────────────────────────────┘
+                           │
+                           │ WebSocket Connection
+                           ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                       FASTAPI SERVER                             │
+│  Receives request, forwards to Orchestrator                      │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
                            ▼
@@ -467,9 +517,11 @@ Tools Called: 5 total
 │  Create helpful error response with alternatives                 │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
+                           │ WebSocket Response with alternatives
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                         USER TERMINAL                            │
+│                      FRONTEND APPLICATION                        │
+│  (Displays helpful error response with alternatives)             │
 │                                                                  │
 │  I checked our inventory for blue orchids:                       │
 │                                                                  │

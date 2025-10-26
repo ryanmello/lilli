@@ -1,10 +1,10 @@
 # 🌸 Lilli
 
-An intelligent multi-agent AI system for flower shop management, built with Python and LangGraph.
+An intelligent multi-agent AI system for flower shop management, built with Python, FastAPI, and LangGraph.
 
 ## Overview
 
-Lilli is a sophisticated AI assistant that helps flower shops manage their operations through natural language interactions via a terminal interface. It uses an orchestrator-based architecture to route queries to specialized agents handling different aspects of the business.
+Lilli is a sophisticated AI assistant that helps flower shops manage their operations through natural language interactions via a web API with real-time WebSocket communication. It uses an orchestrator-based architecture to route queries to specialized agents handling different aspects of the business.
 
 ## Features
 
@@ -18,10 +18,10 @@ Lilli is a sophisticated AI assistant that helps flower shops manage their opera
 
 ## Architecture
 
-The system uses LangGraph to orchestrate multiple specialized agents:
+The system uses FastAPI and LangGraph to orchestrate multiple specialized agents:
 
 ```
-Terminal Interface → Orchestrator → [Specialized Agents] → Response Synthesis
+Frontend (WebSocket) ↔ FastAPI Server → Orchestrator → [Specialized Agents] → Response Synthesis
 ```
 
 **Specialized Agents:**
@@ -40,21 +40,25 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 # Configure
-cp .env.example .env
+cp ENV_TEMPLATE.txt .env
 # Add your API keys to .env
 
-# Run
-python -m src.main
+# Run the API Server
+uvicorn src.api.server:app --reload --host 0.0.0.0 --port 8000
+# Server will be available at http://localhost:8000
+# WebSocket endpoint: ws://localhost:8000/ws
 ```
 
 ## Tech Stack
 
 - **Python 3.10+**
+- **FastAPI**: High-performance web framework
+- **WebSockets**: Real-time bidirectional communication
 - **LangGraph**: Workflow orchestration
 - **LangChain**: LLM integration and tools
 - **SQLite/PostgreSQL**: Data persistence
-- **Rich**: Beautiful terminal UI
 - **Pydantic**: Data validation
+- **Uvicorn**: ASGI server
 
 ## Documentation
 
@@ -67,17 +71,24 @@ python -m src.main
 
 🚧 **In Planning Phase** - See [PLAN.md](PLAN.md) for the complete implementation roadmap.
 
-## Example Queries
+## Example API Usage
 
-```
-🌸 You: Do we have red roses in stock?
-🤖 lilli: Yes, we have 150 stems of red roses available.
+```javascript
+// Connect to WebSocket
+const ws = new WebSocket('ws://localhost:8000/ws');
 
-🌸 You: I need a wedding bouquet with roses and lilies
-🤖 lilli: I can help you design a beautiful wedding bouquet...
+// Send query
+ws.send(JSON.stringify({
+  type: 'query',
+  content: 'Do we have red roses in stock?'
+}));
 
-🌸 You: What's the status of order #1234?
-🤖 lilli: Order #1234 is out for delivery and will arrive by 2pm today.
+// Receive response
+ws.onmessage = (event) => {
+  const response = JSON.parse(event.data);
+  console.log(response.message);
+  // "Yes, we have 150 stems of red roses available."
+};
 ```
 
 ## Development Roadmap
