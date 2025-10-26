@@ -1,6 +1,6 @@
-# 📋 Bloomer Agent - Use Cases & User Stories
+# 📋 Lilli - Use Cases & User Stories
 
-This document provides detailed use cases and user stories to illustrate how the Bloomer Agent system handles various flower shop scenarios.
+This document provides detailed use cases and user stories to illustrate how the Lilli system handles various flower shop scenarios.
 
 ---
 
@@ -392,7 +392,7 @@ Would you like to order sunflowers for someone special?
 
 **Expected Response**:
 ```
-Bloomer Flower Shop - Store Information
+lilli Flower Shop - Store Information
 
 📍 Location:
 123 Flower Street
@@ -406,7 +406,7 @@ Holidays:          10:00 AM - 4:00 PM
 
 📞 Contact:
 Phone: (555) 123-4567
-Email: hello@bloomershop.com
+Email: hello@lillishop.com
 
 🚚 Delivery Available:
 Same-day delivery for orders placed before 2:00 PM
@@ -1093,7 +1093,7 @@ Let me help you locate your order:
 🔍 Ways to Find Your Order:
 
 1. Check your email confirmation
-   • Subject: "Bloomer Order Confirmation"
+   • Subject: "lilli Order Confirmation"
    • Order # is at the top
 
 2. Search by phone number
@@ -1135,5 +1135,5 @@ How would you like to proceed?
 
 ---
 
-These use cases demonstrate how Bloomer Agent handles everything from simple queries to complex multi-agent workflows, always maintaining a helpful, professional, and personalized experience for flower shop operations.
+These use cases demonstrate how Lilli handles everything from simple queries to complex multi-agent workflows, always maintaining a helpful, professional, and personalized experience for flower shop operations.
 

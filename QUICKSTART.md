@@ -1,6 +1,6 @@
 # 🚀 Quick Start Guide
 
-This guide will help you get Bloomer Agent up and running in minutes.
+This guide will help you get Lilli up and running in minutes.
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ This guide will help you get Bloomer Agent up and running in minutes.
 ### 1. Clone or Download the Project
 
 ```bash
-cd bloomer-agent
+cd lilli
 ```
 
 ### 2. Create a Virtual Environment
@@ -82,7 +82,7 @@ Once the terminal interface starts, you'll see:
 
 ```
 ╭─────────────────────────────────╮
-│  Bloomer AI Agent               │
+│  lilli AI Agent               │
 │  Your intelligent flower shop   │
 │  assistant                      │
 ╰─────────────────────────────────╯
@@ -174,7 +174,7 @@ pytest tests/test_orchestrator.py
 ## Next Steps
 
 1. **Explore the Agents**: Try different types of queries to see how the orchestrator routes them
-2. **Check the Logs**: Look at `logs/bloomer.log` to see how queries are processed
+2. **Check the Logs**: Look at `logs/lilli.log` to see how queries are processed
 3. **Read the Plan**: See [PLAN.md](PLAN.md) for detailed architecture and implementation details
 4. **Customize**: Modify agent behaviors in `src/agents/`
 
@@ -207,7 +207,7 @@ mypy src/
 ## Getting Help
 
 If you encounter issues:
-1. Check the logs in `logs/bloomer.log`
+1. Check the logs in `logs/lilli.log`
 2. Review [PLAN.md](PLAN.md) for architecture details
 3. Check that all dependencies are installed correctly
 4. Verify your API keys are valid and have credits
@@ -219,7 +219,7 @@ Here's what a complete interaction looks like:
 ```
 🌸 You: Do we have roses?
 
-🤖 Bloomer: Yes! We currently have roses in stock:
+🤖 lilli: Yes! We currently have roses in stock:
 • Red Roses: 150 stems
 • White Roses: 80 stems
 • Pink Roses: 120 stems
@@ -229,7 +229,7 @@ All are fresh and in excellent condition. Would you like to place an order?
 
 🌸 You: I'd like 2 dozen red roses delivered tomorrow
 
-🤖 Bloomer: Perfect! I can help you with that order:
+🤖 lilli: Perfect! I can help you with that order:
 
 Order Details:
 • 24 Red Roses: $72.00
@@ -248,7 +248,7 @@ Would you like to proceed?
 
 🌸 You: exit
 
-Thank you for using Bloomer Agent! Have a great day! 🌸
+Thank you for using Lilli! Have a great day! 🌸
 ```
 
 ## Configuration Tips

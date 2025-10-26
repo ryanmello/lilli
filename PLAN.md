@@ -1,8 +1,8 @@
-# Bloomer Agent - AI Agent System for Flower Shops
+# Lilli - AI Agent System for Flower Shops
 
 ## Executive Summary
 
-Bloomer Agent is an intelligent multi-agent system designed specifically for flower shop operations. Built with Python and LangGraph, it provides a terminal-based interface where users can submit natural language queries that are intelligently routed to specialized agents handling different aspects of flower shop management.
+Lilli is an intelligent multi-agent system designed specifically for flower shop operations. Built with Python and LangGraph, it provides a terminal-based interface where users can submit natural language queries that are intelligently routed to specialized agents handling different aspects of flower shop management.
 
 ---
 
@@ -387,7 +387,7 @@ app = workflow.compile()
 ## Project Structure
 
 ```
-bloomer-agent/
+lilli/
 │
 ├── README.md
 ├── requirements.txt
@@ -658,9 +658,9 @@ OPENAI_API_KEY=your_key_here
 ANTHROPIC_API_KEY=your_key_here
 
 # Database
-DATABASE_URL=sqlite:///bloomer.db
+DATABASE_URL=sqlite:///lilli.db
 # or for PostgreSQL
-# DATABASE_URL=postgresql://user:pass@localhost/bloomer
+# DATABASE_URL=postgresql://user:pass@localhost/lilli
 
 # Application
 LOG_LEVEL=INFO
@@ -771,12 +771,12 @@ class TerminalInterface:
     def __init__(self):
         self.console = Console()
         self.session = PromptSession(
-            history=FileHistory('.bloomer_history')
+            history=FileHistory('.lilli_history')
         )
     
     def run(self):
         self.console.print(Panel(
-            "[bold blue]Bloomer AI Agent[/bold blue]\n"
+            "[bold blue]lilli AI Agent[/bold blue]\n"
             "Your intelligent flower shop assistant",
             expand=False
         ))
@@ -794,7 +794,7 @@ class TerminalInterface:
                 # Display response
                 self.console.print(
                     Panel(Markdown(response), 
-                          title="🤖 Bloomer", 
+                          title="🤖 lilli", 
                           border_style="green")
                 )
                 
@@ -961,7 +961,7 @@ Once implementation begins:
 ```bash
 # Clone and setup
 git clone <repo>
-cd bloomer-agent
+cd lilli
 
 # Create virtual environment
 python -m venv venv

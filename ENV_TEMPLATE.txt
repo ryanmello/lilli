@@ -1,5 +1,5 @@
 # =============================================================================
-# BLOOMER AGENT - ENVIRONMENT CONFIGURATION TEMPLATE
+# Lilli - ENVIRONMENT CONFIGURATION TEMPLATE
 # =============================================================================
 # Copy this file to .env and fill in your actual values
 # Command: cp ENV_TEMPLATE.txt .env
@@ -30,17 +30,17 @@ LLM_PROVIDER=openai
 # -----------------------------------------------------------------------------
 
 # SQLite (default for development - no additional setup required)
-DATABASE_URL=sqlite:///bloomer.db
+DATABASE_URL=sqlite:///lilli.db
 
 # PostgreSQL (for production - requires PostgreSQL server)
-# DATABASE_URL=postgresql://username:password@localhost:5432/bloomer_db
-# Example: postgresql://bloomer_user:securepassword@localhost:5432/bloomer
+# DATABASE_URL=postgresql://username:password@localhost:5432/lilli_db
+# Example: postgresql://lilli_user:securepassword@localhost:5432/lilli
 
 # -----------------------------------------------------------------------------
 # Application Settings
 # -----------------------------------------------------------------------------
 
-APP_NAME=Bloomer Agent
+APP_NAME=Lilli
 ENVIRONMENT=development
 # Options: development, staging, production
 
@@ -101,7 +101,7 @@ TERMINAL_COLOR_SCHEME=default
 ENABLE_RICH_FORMATTING=true
 
 # File path for command history
-HISTORY_FILE=.bloomer_history
+HISTORY_FILE=.lilli_history
 
 # -----------------------------------------------------------------------------
 # Performance & Rate Limiting
@@ -143,7 +143,7 @@ ENABLE_REQUEST_LOGGING=false
 
 # SendGrid (for email notifications)
 # SENDGRID_API_KEY=your_sendgrid_key
-# SENDGRID_FROM_EMAIL=noreply@bloomershop.com
+# SENDGRID_FROM_EMAIL=noreply@lillishop.com
 
 # Stripe (for payment processing)
 # STRIPE_SECRET_KEY=your_stripe_secret_key
@@ -155,7 +155,7 @@ ENABLE_REQUEST_LOGGING=false
 
 # LangSmith (LangChain monitoring platform)
 # LANGSMITH_API_KEY=your_langsmith_key
-# LANGSMITH_PROJECT=bloomer-agent
+# LANGSMITH_PROJECT=lilli
 # LANGSMITH_TRACING=true
 # LANGSMITH_ENDPOINT=https://api.smith.langchain.com
 
@@ -171,7 +171,7 @@ ENABLE_REQUEST_LOGGING=false
 TEST_MODE=false
 
 # Test database URL (separate from production)
-# TEST_DATABASE_URL=sqlite:///test_bloomer.db
+# TEST_DATABASE_URL=sqlite:///test_lilli.db
 
 # Mock LLM responses for testing
 MOCK_LLM_RESPONSES=false

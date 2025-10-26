@@ -1,10 +1,10 @@
-# 🌸 Bloomer Agent
+# 🌸 Lilli
 
 An intelligent multi-agent AI system for flower shop management, built with Python and LangGraph.
 
 ## Overview
 
-Bloomer Agent is a sophisticated AI assistant that helps flower shops manage their operations through natural language interactions via a terminal interface. It uses an orchestrator-based architecture to route queries to specialized agents handling different aspects of the business.
+Lilli is a sophisticated AI assistant that helps flower shops manage their operations through natural language interactions via a terminal interface. It uses an orchestrator-based architecture to route queries to specialized agents handling different aspects of the business.
 
 ## Features
 
@@ -71,13 +71,13 @@ python -m src.main
 
 ```
 🌸 You: Do we have red roses in stock?
-🤖 Bloomer: Yes, we have 150 stems of red roses available.
+🤖 lilli: Yes, we have 150 stems of red roses available.
 
 🌸 You: I need a wedding bouquet with roses and lilies
-🤖 Bloomer: I can help you design a beautiful wedding bouquet...
+🤖 lilli: I can help you design a beautiful wedding bouquet...
 
 🌸 You: What's the status of order #1234?
-🤖 Bloomer: Order #1234 is out for delivery and will arrive by 2pm today.
+🤖 lilli: Order #1234 is out for delivery and will arrive by 2pm today.
 ```
 
 ## Development Roadmap

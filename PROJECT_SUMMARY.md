@@ -1,4 +1,4 @@
-# 📦 Bloomer Agent - Project Summary
+# 📦 Lilli - Project Summary
 
 ## What You Have Now
 
@@ -209,7 +209,7 @@ OPENAI_API_KEY=your_key_here
 # or
 ANTHROPIC_API_KEY=your_key_here
 LLM_PROVIDER=openai
-DATABASE_URL=sqlite:///bloomer.db
+DATABASE_URL=sqlite:///lilli.db
 ```
 
 ### 3. Initialize Database
@@ -251,14 +251,14 @@ python -m src.main
 ### Simple Query
 ```
 🌸 You: Do we have red roses?
-🤖 Bloomer: Yes, we have 150 stems of red roses in stock.
+🤖 lilli: Yes, we have 150 stems of red roses in stock.
 ```
 
 ### Complex Multi-Agent Query
 ```
 🌸 You: I need a wedding bouquet with roses delivered tomorrow to 90210
 
-🤖 Bloomer: [Engages Design → Inventory → Delivery → Order agents]
+🤖 lilli: [Engages Design → Inventory → Delivery → Order agents]
 
 I'll help you create a beautiful wedding bouquet!
 
@@ -456,5 +456,5 @@ This is an ambitious but achievable project. The modular architecture means you 
 
 **Start with Phase 1, and build one component at a time!**
 
-Good luck building Bloomer Agent! 🌸🤖
+Good luck building Lilli! 🌸🤖
 

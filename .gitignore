@@ -56,7 +56,7 @@ htmlcov/
 .tox/
 
 # Project Specific
-.bloomer_history
+.lilli_history
 data/cache/
 data/temp/
 

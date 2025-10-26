@@ -1,4 +1,4 @@
-# 🔄 Bloomer Agent - Workflow Examples
+# 🔄 Lilli - Workflow Examples
 
 Visual representation of how queries flow through the system.
 
@@ -612,5 +612,5 @@ After Synthesis:
 
 ---
 
-These workflows demonstrate the flexibility and power of the Bloomer Agent's orchestrator-based architecture!
+These workflows demonstrate the flexibility and power of the Lilli's orchestrator-based architecture!
 

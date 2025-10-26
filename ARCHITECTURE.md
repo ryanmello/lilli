@@ -1,8 +1,8 @@
-# 🏗️ Bloomer Agent Architecture
+# 🏗️ Lilli Architecture
 
 ## System Overview
 
-Bloomer Agent is a multi-agent AI system built on LangGraph that orchestrates specialized agents to handle various flower shop operations. This document provides a deep dive into the architectural decisions and implementation patterns.
+Lilli is a multi-agent AI system built on LangGraph that orchestrates specialized agents to handle various flower shop operations. This document provides a deep dive into the architectural decisions and implementation patterns.
 
 ## Core Architectural Principles
 
@@ -692,7 +692,7 @@ class QueryMetrics:
 ```python
 import os
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
-os.environ["LANGCHAIN_PROJECT"] = "bloomer-agent"
+os.environ["LANGCHAIN_PROJECT"] = "lilli"
 
 # Automatic tracing of all LangChain operations
 ```
