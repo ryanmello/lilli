@@ -1,32 +1,26 @@
-from agents.base_agent import Agent
-from tools.weather_tool import WeatherTool
-from tools.time_tool import TimeTool
-from core.orchestrator import AgentOrchestrator
+import uvicorn
+from core.app import create_app
+from config.settings import settings
 
-from dotenv import load_dotenv
-import os
+app = create_app()
 
-# Load environment variables from .env file
-load_dotenv()
+def main():
+    print(f"   Starting {settings.PROJECT_NAME}")
+    print(f"   Host: {settings.HOST}")
+    print(f"   Port: {settings.PORT}")
+    print(f"   Reload: {settings.RELOAD}")
+    print(f"   OpenAI API Key: {'Set' if settings.OPENAI_API_KEY else 'Missing'}")
+    print(f"   Frontend URL: {settings.FRONTEND_URL}")
+    print(f"   API Docs: http://{settings.HOST}:{settings.PORT}/docs")
+    
+    uvicorn.run(
+        "main:app",
+        host=settings.HOST,
+        port=settings.PORT,
+        reload=settings.RELOAD,
+        log_level=settings.LOG_LEVEL,
+        access_log=True
+    )
 
-# Create Weather Agent
-weather_agent = Agent(
-    Name="Weather Agent",
-    Description="Provides weather information for a given location",
-    Tools=[WeatherTool()],
-    Model="gpt-4o-mini"
-)
-
-# Create Time Agent
-time_agent = Agent(
-    Name="Time Agent",
-    Description="Provides the current time for a given city",
-    Tools=[TimeTool()],
-    Model="gpt-4o-mini"
-)
-
-# Create AgentOrchestrator
-agent_orchestrator = AgentOrchestrator([weather_agent, time_agent])
-
-# Run the orchestrator
-agent_orchestrator.run()
+if __name__ == "__main__":
+    main()

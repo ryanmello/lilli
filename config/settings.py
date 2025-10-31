@@ -1,5 +1,8 @@
 import os
 from typing import List
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Settings:
     PROJECT_NAME: str = "lilli"
@@ -16,5 +19,15 @@ class Settings:
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     OPENAI_BASE_URL: str = "https://api.openai.com/v1"
     OPENAI_MODEL: str = "gpt-5"
+
+    @classmethod
+    def get_cors_config(cls) -> dict:
+        """Get CORS configuration dictionary."""
+        return {
+            "allow_origins": cls.ALLOWED_ORIGINS,
+            "allow_credentials": True,
+            "allow_methods": ["*"],
+            "allow_headers": ["*"],
+        }
 
 settings = Settings()

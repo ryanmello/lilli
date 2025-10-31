@@ -162,13 +162,18 @@ Set environment variables:
 
 ## Running the System
 
+### FastAPI Server (Recommended)
+
 ```bash
 python main.py
 ```
 
-The orchestrator will start an interactive session where you can chat and issue commands. Type 'exit', 'bye', or 'close' to quit.
+This starts the FastAPI server with WebSocket support at `http://127.0.0.1:8000`
+
+- API Documentation: http://127.0.0.1:8000/docs
+- Health Check: http://127.0.0.1:8000/api/health
+- WebSocket endpoint: `ws://127.0.0.1:8000/ws/{task_id}`
 
 ---
 
 *Lilli demonstrates how modular agent architectures can handle complex, multi-domain tasks through intelligent orchestration and specialized tool-equipped agents.*
-

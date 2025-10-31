@@ -1,3 +1,7 @@
 requests
 python-dotenv
 termcolor
+fastapi
+uvicorn[standard]
+websockets
+pytz
