@@ -1,8 +1,10 @@
 import ast
 import json
-from core.llm_ops import query_llm
+from utils.llm import query_llm
 from agents.base_agent import Agent
-from core.logger import log_message
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 class AgentOrchestrator:
     def __init__(self, agents: list[Agent]):
@@ -12,7 +14,7 @@ class AgentOrchestrator:
 
     def json_parser(self, input_string):
 
-      print(type(input_string))
+      logger.info(type(input_string))
 
       python_dict = ast.literal_eval(input_string)
       json_string = json.dumps(python_dict)
@@ -28,7 +30,7 @@ class AgentOrchestrator:
 
         context = "\n".join(self.memory)
 
-        print(f"Context: {context}")
+        logger.info(f"Context: {context}")
 
         response_format = {"action":"", "input":"", "next_action":""}
         
@@ -67,44 +69,43 @@ class AgentOrchestrator:
         llm_response = query_llm(prompt)
 
         llm_response = self.json_parser(llm_response)
-        print(f"LLM Response: {llm_response}")
+        logger.info(f"LLM Response: {llm_response}")
 
         self.memory.append(f"Orchestrator: {llm_response}")
 
         action = llm_response["action"]
         user_input = llm_response["input"]
 
-        print(f"Action identified by LLM: {action}")
+        logger.info(f"Action identified by LLM: {action}")
         
         if action == "respond_to_user":
             return llm_response
         for agent in self.agents:
             if agent.name == action:
-                print("*******************Found Agent Name*******************************")
                 agent_response = agent.process_input(user_input)
-                print(f"{action} response: {agent_response}")
+                logger.info(f"{action} response: {agent_response}")
                 self.memory.append(f"Agent Response for Task: {agent_response}")
-                print(self.memory)
+                logger.info(self.memory)
                 return agent_response                
 
     def run(self):
-        print("LLM Agent: Hello! How can I assist you today?")
+        logger.info("LLM Agent: Hello! How can I assist you today?")
         user_input = input("You: ")
         self.memory.append(f"User: {user_input}")
 
         while True:            
             if user_input.lower() in ["exit", "bye", "close"]:
-                print("See you later!")
+                logger.info("See you later!")
                 break
 
             response = self.orchestrate_task(user_input)
-            print(f"Final response of orchestrator {response}")
+            logger.info(f"Final response of orchestrator {response}")
             if isinstance(response, dict) and response["action"] == "respond_to_user":                
-                log_message(f"Reponse from Agent: {response["input"]}", "RESPONSE")
+                logger.info(f"Reponse from Agent: {response["input"]}", "RESPONSE")
                 user_input = input("You: ")
                 self.memory.append(f"User: {user_input}")                
             elif response == "No action or agent needed":
-                print("Reponse from Agent: ", response)
+                logger.info("Reponse from Agent: ", response)
                 user_input = input("You: ")
             else:
-                user_input = response                
+                user_input = response

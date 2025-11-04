@@ -1,7 +1,9 @@
-from abc import abstractmethod
 import ast
-from core.llm_ops import query_llm
+from utils.llm import query_llm
 import json
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 class Agent:
     def __init__(self, Name: str, Description: str, Tools: list, Model: str):        
@@ -14,7 +16,7 @@ class Agent:
 
     def json_parser(self, input_string):
 
-      print(type(input_string))
+      logger.info(type(input_string))
 
       python_dict = ast.literal_eval(input_string)
       json_string = json.dumps(python_dict)
@@ -27,7 +29,6 @@ class Agent:
 
     def process_input(self, user_input):
         self.memory.append(f"User: {user_input}")
-        12
 
         context = "\n".join(self.memory)
         tool_descriptions = "\n".join([f"- {tool.name()}: {tool.description()}" for tool in self.tools])

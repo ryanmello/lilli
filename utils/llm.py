@@ -2,6 +2,10 @@ import requests
 import os
 import json
 
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
+
 def query_llm(prompt:str, model="gpt-4o-mini"):
     api_key = os.getenv("OPENAI_API_KEY")
     headers = {
@@ -16,5 +20,5 @@ def query_llm(prompt:str, model="gpt-4o-mini"):
     }
     response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, data=json.dumps(data), verify=False)    
     final_response = response.json()['choices'][0]['message']['content'].strip()
-    print(final_response)   
+    logger.info(final_response)   
     return final_response
