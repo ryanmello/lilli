@@ -1,60 +1,60 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException
 from pydantic import BaseModel
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from utils.logger import get_logger
 from services.websocket_service import websocket_service
 from services.task_service import task_service
 from core.orchestrator import AgentOrchestrator
 from agents.base_agent import Agent
-from tools.weather_tool import WeatherTool
-from tools.time_tool import TimeTool
+from agents.inventory_agent import InventoryAgent
 import asyncio
 
 logger = get_logger(__name__)
 
 router = APIRouter()
 
-# Initialize agents and orchestrator
-# TODO: Move this to a dedicated initialization module or dependency injection
-weather_agent = Agent(
-    Name="Weather Agent",
-    Description="Provides weather information for a given location",
-    Tools=[WeatherTool()],
-    Model="gpt-4o-mini"
-)
-
-time_agent = Agent(
-    Name="Time Agent",
-    Description="Provides the current time for a given city",
-    Tools=[TimeTool()],
-    Model="gpt-4o-mini"
-)
-
-orchestrator = AgentOrchestrator([weather_agent, time_agent])
-
-
 class TaskRequest(BaseModel):
     prompt: str
+    shop_id: str
     metadata: Dict[str, Any] = {}
 
+def create_orchestrator(shop_id: str) -> AgentOrchestrator:
+    """
+    Create an orchestrator with available agents based on context.
+    
+    Args:
+        shop_id: Shop ID for inventory operations
+    
+    Returns:
+        AgentOrchestrator instance with appropriate agents
+    """
+    inventory_agent = InventoryAgent(shop_id)
+
+    agents = [inventory_agent]
+    
+    return AgentOrchestrator(agents)
 
 @router.post("/api/tasks")
 async def create_task(request: TaskRequest):
-    """Create a new agent task"""
+    """Create a new agent task with optional shop context"""
     try:
-        task_id = await task_service.create_task(request.prompt)
+        # Create metadata with shop_id if provided
+        metadata = request.metadata.copy()
+        metadata['shop_id'] = request.shop_id
         
-        logger.info(f"Task created: {task_id}")
+        task_id = await task_service.create_task(request.prompt, metadata)
+        
+        logger.info(f"Task created: {task_id} (shop_id: {request.shop_id})")
         
         return {
             "task_id": task_id,
             "status": "created",
+            "shop_id": request.shop_id,
             "message": "Task created successfully. Connect via WebSocket to receive updates."
         }
     except Exception as e:
         logger.error(f"Failed to create task: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.websocket("/ws/{task_id}")
 async def websocket_endpoint(websocket: WebSocket, task_id: str):
@@ -77,6 +77,7 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
             return
         
         prompt = task_metadata.get("prompt")
+        shop_id = task_metadata.get("shop_id")
         
         # Send starting message
         await websocket_service.send_progress(
@@ -89,7 +90,19 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
         
         # Execute the agent task
         async def run_agent_task():
+            orchestrator = None
             try:
+                # Create orchestrator with shop context
+                await websocket_service.send_progress(
+                    task_id,
+                    20,
+                    "Initializing agents...",
+                    step_number=1,
+                    total_steps=5
+                )
+                
+                orchestrator = create_orchestrator(shop_id=shop_id)
+                
                 # Send progress update
                 await websocket_service.send_progress(
                     task_id,
@@ -160,6 +173,16 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
                     context="agent_execution"
                 )
                 task_service.cancel_task(task_id)
+            finally:
+                # Cleanup agents with database connections
+                if orchestrator:
+                    for agent in orchestrator.agents:
+                        if hasattr(agent, 'cleanup'):
+                            try:
+                                agent.cleanup()
+                                logger.info(f"Cleaned up {agent.name}")
+                            except Exception as e:
+                                logger.error(f"Error cleaning up {agent.name}: {e}")
         
         # Create and register the task
         task = asyncio.create_task(run_agent_task())
@@ -206,7 +229,6 @@ async def get_task_status(task_id: str):
         "metadata": metadata
     }
 
-
 @router.get("/api/health")
 async def health_check():
     """Health check endpoint"""
@@ -216,4 +238,3 @@ async def health_check():
         "active_tasks": len(task_service.active_tasks),
         "active_connections": len(websocket_service.active_connections)
     }
-

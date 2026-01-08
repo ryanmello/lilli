@@ -29,6 +29,8 @@ def create_app() -> FastAPI:
 async def startup_event():    
     if not settings.OPENAI_API_KEY:
         raise ValueError("OPENAI_API_KEY is required but not set in environment variables")
+    if not settings.DATABASE_URL:
+        raise ValueError("DATABASE_URL is required but not set in environment variables")
 
 async def shutdown_event():
     for task_id in list(websocket_service.active_connections.keys()):

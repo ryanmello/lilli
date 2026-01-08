@@ -11,7 +11,7 @@ class TaskService():
         self.active_tasks: Dict[str, asyncio.Task] = {}
         self.task_metadata: Dict[str, Dict[str, Any]] = {}
 
-    async def create_task(self, prompt: str, coro: Optional[Coroutine] = None) -> str:
+    async def create_task(self, prompt: str, coro: Optional[Coroutine] = None, metadata: Optional[Dict[str, Any]] = None) -> str:
         """Create a new task with optional coroutine to execute"""
         task_id = str(uuid.uuid4())
         
@@ -21,6 +21,10 @@ class TaskService():
             "status": "running",
             "created_at": datetime.now().isoformat()
         }
+        
+        # Merge additional metadata if provided
+        if metadata:
+            self.task_metadata[task_id].update(metadata)
         
         # If a coroutine is provided, create and store the actual asyncio task
         if coro:

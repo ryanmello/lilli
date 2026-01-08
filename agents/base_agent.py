@@ -15,7 +15,6 @@ class Agent:
         self.max_memory = 10
 
     def json_parser(self, input_string):
-
       logger.info(type(input_string))
 
       python_dict = ast.literal_eval(input_string)
