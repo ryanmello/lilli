@@ -21,8 +21,8 @@ def create_app() -> FastAPI:
     app.add_event_handler("startup", startup_event)
     app.add_event_handler("shutdown", shutdown_event)
     
-    from api import websocket
-    app.include_router(websocket.router, tags=["websocket"])
+    from api import lilli
+    app.include_router(lilli.router, tags=["websocket"])
     
     return app
 

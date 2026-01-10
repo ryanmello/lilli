@@ -2,12 +2,13 @@ from typing import Dict, Any
 import json
 from fastapi import WebSocket
 from utils.logger import get_logger
-from services.task_service import task_service
+from datetime import datetime
 
 logger = get_logger(__name__)
 
 class WebsocketService:
     def __init__(self):
+        # { key: task_id : val: websocket }
         self.active_connections: Dict[str, WebSocket] = {}
 
     # connect
@@ -16,9 +17,8 @@ class WebsocketService:
         self.active_connections[task_id] = websocket
         logger.info(f"WebSocket connected for task {task_id}")
     
-    # disconnect and cancel running tasks
+    # disconnect
     async def disconnect_websocket(self, task_id: str):
-        # Make this method idempotent to handle multiple calls
         websocket = self.active_connections.get(task_id)
         if websocket:
             try:
@@ -30,12 +30,6 @@ class WebsocketService:
             # Remove from active connections after closing
             self.active_connections.pop(task_id, None)
         
-        # Only try to cancel if task is still active
-        if task_id in task_service.active_tasks:
-            cancelled = task_service.cancel_task(task_id)
-            if cancelled:
-                logger.info(f"Cancelled analysis task {task_id} during disconnect")
-        
         logger.info(f"WebSocket disconnected for task {task_id}")
 
     # send message to a specific websocket connection
@@ -44,7 +38,6 @@ class WebsocketService:
         if websocket:
             try:
                 # Always ensure timestamp is present and valid
-                from datetime import datetime
                 message["timestamp"] = datetime.now().isoformat()
                 
                 # Ensure task_id is always present

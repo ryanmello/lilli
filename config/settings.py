@@ -22,10 +22,6 @@ class Settings:
 
     DATABASE_URL: str = os.getenv("DATABASE_URL", "")
 
-    # Resend Email Configuration
-    RESEND_API_KEY: str = os.getenv("RESEND_API_KEY", "")
-    DEFAULT_FROM_EMAIL: str = os.getenv("DEFAULT_FROM_EMAIL", "noreply@example.com")
-
     @classmethod
     def get_cors_config(cls) -> dict:
         """Get CORS configuration dictionary."""
