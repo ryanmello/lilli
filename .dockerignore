@@ -1,0 +1,34 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.env
+.venv
+venv/
+ENV/
+
+# Node
+app/node_modules
+app/.next
+app/.turbo
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Docker
+infra/
+
+# Misc
+*.log
+*.md
+.DS_Store
+Thumbs.db

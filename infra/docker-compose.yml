@@ -1,0 +1,60 @@
+services:
+  agent:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.agent
+    container_name: lilli-agent
+    env_file:
+      - path: ../.env
+        required: false
+    ports:
+      - "${AGENT_PORT}:${AGENT_PORT}"
+    environment:
+      - HOST=${AGENT_HOST}
+      - PORT=${AGENT_PORT}
+      - RELOAD=${AGENT_RELOAD}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      mongo:
+        condition: service_started
+    networks:
+      - lilli-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${AGENT_PORT:-8000}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  app:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.app
+    container_name: lilli-app
+    env_file:
+      - path: ../.env
+        required: false
+    ports:
+      - "${APP_PORT}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - NEXT_PUBLIC_API_URL=${API_URL}
+      - NEXT_PUBLIC_WS_URL=${WS_URL}
+    depends_on:
+      agent:
+        condition: service_started
+    networks:
+      - lilli-network
+    restart: unless-stopped
+
+networks:
+  lilli-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
