@@ -21,12 +21,8 @@ def create_app() -> FastAPI:
     app.add_event_handler("startup", startup_event)
     app.add_event_handler("shutdown", shutdown_event)
     
-    @app.get("/health")
-    async def health_check():
-        return {"status": "healthy", "uptime": time.time() - start_time}
-    
     from api import lilli
-    app.include_router(lilli.router, tags=["websocket"])
+    app.include_router(lilli.router, tags=["lilli"])
     
     return app
 
