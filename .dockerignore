@@ -29,6 +29,5 @@ infra/
 
 # Misc
 *.log
-*.md
 .DS_Store
 Thumbs.db

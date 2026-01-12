@@ -7,7 +7,7 @@ load_dotenv()
 class Settings:
     PROJECT_NAME: str = "lilli"
 
-    HOST: str = os.getenv("HOST", "127.0.0.1")
+    HOST: str = os.getenv("HOST", "0.0.0.0")
     PORT: int = int(os.getenv("PORT", "8000"))
     RELOAD: bool = os.getenv("RELOAD", "true").lower() == "true"
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "info")
@@ -20,7 +20,7 @@ class Settings:
     OPENAI_BASE_URL: str = "https://api.openai.com/v1"
     OPENAI_MODEL: str = "gpt-5"
 
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "")
+    SUPABASE_DATABASE_URL: str = os.getenv("SUPABASE_DATABASE_URL", "")
 
     # Supabase
     SUPABASE_PROJECT_URL: str = os.getenv("SUPABASE_PROJECT_URL", "")

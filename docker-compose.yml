@@ -1,11 +1,13 @@
+name: lilli
+
 services:
   agent:
     build:
-      context: ..
+      context: .
       dockerfile: infra/Dockerfile.agent
     container_name: lilli-agent
     env_file:
-      - path: ../.env
+      - path: .env
         required: false
     ports:
       - "${AGENT_PORT}:${AGENT_PORT}"
@@ -17,10 +19,7 @@ services:
       - FRONTEND_URL=${FRONTEND_URL}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - DATABASE_URL=${DATABASE_URL}
-    depends_on:
-      mongo:
-        condition: service_started
+      - SUPABASE_DATABASE_URL=${SUPABASE_DATABASE_URL}
     networks:
       - lilli-network
     restart: unless-stopped
@@ -31,13 +30,13 @@ services:
       retries: 3
       start_period: 40s
 
-  app:
+  ui:
     build:
-      context: ..
-      dockerfile: infra/Dockerfile.app
-    container_name: lilli-app
+      context: .
+      dockerfile: infra/Dockerfile.ui
+    container_name: lilli-ui
     env_file:
-      - path: ../.env
+      - path: .env
         required: false
     ports:
       - "${APP_PORT}:3000"
@@ -55,6 +54,3 @@ services:
 networks:
   lilli-network:
     driver: bridge
-
-volumes:
-  mongo-data:

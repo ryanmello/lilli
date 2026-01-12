@@ -5,5 +5,4 @@ fastapi
 uvicorn[standard]
 websockets
 pytz
-pymongo
 resend

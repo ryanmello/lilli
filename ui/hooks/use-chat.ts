@@ -1,7 +1,14 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import type { Message } from "@/components/chat"
+
+export interface Message {
+  id: string
+  role: "user" | "assistant"
+  content: string
+  timestamp: Date
+  status: "sent" | "sending" | "error"
+}
 
 interface UseChatOptions {
   onError?: (error: Error) => void

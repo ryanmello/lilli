@@ -21,6 +21,10 @@ def create_app() -> FastAPI:
     app.add_event_handler("startup", startup_event)
     app.add_event_handler("shutdown", shutdown_event)
     
+    @app.get("/health")
+    async def health_check():
+        return {"status": "healthy", "uptime": time.time() - start_time}
+    
     from api import lilli
     app.include_router(lilli.router, tags=["websocket"])
     
@@ -29,8 +33,8 @@ def create_app() -> FastAPI:
 async def startup_event():    
     if not settings.OPENAI_API_KEY:
         raise ValueError("OPENAI_API_KEY is required but not set in environment variables")
-    if not settings.DATABASE_URL:
-        raise ValueError("DATABASE_URL is required but not set in environment variables")
+    if not settings.SUPABASE_DATABASE_URL:
+        raise ValueError("SUPABASE_DATABASE_URL is required but not set in environment variables")
 
 async def shutdown_event():
     for task_id in list(websocket_service.active_connections.keys()):

@@ -12,10 +12,11 @@ dependencies = [
     "uvicorn[standard]",
     "websockets",
     "pytz",
-    "pymongo",
     "resend",
     "supabase>=2.27.1",
     "psycopg2-binary>=2.9.11",
+    "sqlalchemy>=2.0.45",
+    "alembic>=1.18.0",
 ]
 
 [project.scripts]
