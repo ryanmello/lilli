@@ -22,7 +22,7 @@ def create_app() -> FastAPI:
     app.add_event_handler("shutdown", shutdown_event)
     
     from api import lilli
-    app.include_router(lilli.router, tags=["lilli"])
+    app.include_router(lilli.router, prefix="/api", tags=["lilli"])
     
     return app
 

@@ -20,6 +20,9 @@ services:
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - SUPABASE_DATABASE_URL=${SUPABASE_DATABASE_URL}
+    volumes:
+      - .:/app          # Sync local code into container
+      - /app/.venv      # Keep .venv inside container (not on Windows)
     networks:
       - lilli-network
     restart: unless-stopped

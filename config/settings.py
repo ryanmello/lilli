@@ -21,8 +21,6 @@ class Settings:
     OPENAI_MODEL: str = "gpt-5"
 
     SUPABASE_DATABASE_URL: str = os.getenv("SUPABASE_DATABASE_URL", "")
-
-    # Supabase
     SUPABASE_PROJECT_URL: str = os.getenv("SUPABASE_PROJECT_URL", "")
     SUPABASE_SECRET_API_KEY: str = os.getenv("SUPABASE_SECRET_API_KEY", "")
 
