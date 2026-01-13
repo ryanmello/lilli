@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config.settings import settings
 from utils.logger import setup_logging, get_logger
-from services.websocket_service import websocket_service
+from services.websocket import websocket_service
 
 setup_logging(level=settings.LOG_LEVEL)
 logger = get_logger(__name__)
