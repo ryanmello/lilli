@@ -15,7 +15,7 @@ async def health_check():
 @router.post("/response", response_model=AIResponse)
 async def get_ai_response(request: AIRequest):
     try:
-        res = AIResponse(output="This is from this I guess")
+        res = AIResponse(output="What????")
         return res
     except Exception as e:
         logger.error(e)
