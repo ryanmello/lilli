@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from typing import Callable, Type
 from pydantic import BaseModel
 
+from agents.base_agent import BaseAgent
+
 @dataclass
 class Agent:
     name: str
@@ -18,15 +20,20 @@ class AgentRegistry:
         self.agents: dict[str, Agent] = {}
     
     # register an agent
-    def register(
-        self, 
-        name: str, 
-        description: str, 
-        instructions: str, 
-        output_schema: Type[BaseModel], 
-        handler: Callable
-    ) -> None:
-        self.agents[name] = Agent(name, description, instructions, output_schema, handler)
+    def register(self, agent: BaseAgent) -> None:
+        self.agents[agent.name] = Agent(
+            name=agent.name,
+            description=agent.description,
+            instructions=agent.instructions,
+            output_schema=agent.output_schema,
+            handler=agent.handler
+        )
+    
+    # return an agent
+    def get_agent(self, agent_name: str) -> Agent:
+        for name, agent in self.agents.items():
+            if name == agent_name:
+                return agent
 
     # return a list of all agents
     def get_agents(self) -> List[Agent]:
@@ -36,7 +43,7 @@ class AgentRegistry:
     def get_agent_prompt(self) -> str:
         prompt: List[str] = []
         for agent in self.agents.values():
-            prompt.append(f"- {agent.name}: {agent.description}\n")
+            prompt.append(f"- {agent.name}: {agent.description} {agent.instructions} \n")
         return "".join(prompt)
     
     def get_agent_names(self) -> List[str]:

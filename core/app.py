@@ -1,4 +1,5 @@
 import time
+from typing import List
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config.settings import settings
@@ -36,6 +37,6 @@ async def startup_event():
     register_agents()
 
 async def shutdown_event():
-    for task_id in list(websocket_service.active_connections.keys()):
+    for task_id in List[str](websocket_service.active_connections.keys()):
         await websocket_service.disconnect_websocket(task_id)
     logger.info("Shutdown complete")

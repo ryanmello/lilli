@@ -5,6 +5,9 @@ from core.prompts import prompts
 from core.llm import llm
 from langgraph.graph import StateGraph, START, END
 import operator
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 class OrchestratorState(TypedDict):
     user_input: str
@@ -31,7 +34,7 @@ class Orchestrator:
 
         select_agent_prompt = self.system_prompt + prompts.get_select_agent_prompt()
 
-        print(f"select_agent_prompt: {select_agent_prompt}")
+        logger.info(f"select_agent_prompt: {select_agent_prompt}")
 
         messages = [
             SystemMessage(content=select_agent_prompt),
@@ -41,6 +44,8 @@ class Orchestrator:
         response = self.llm.invoke(messages)
         selected_agent = response.content.strip().lower()
 
+        logger.info(f"selected_agent: {selected_agent}")
+
         if selected_agent not in agent_names:
             return {"error": [f"Unknown agent: {selected_agent}"]}
 
@@ -48,9 +53,16 @@ class Orchestrator:
     
     # execute the agent defined in the graph state
     async def delegate_to_agent(self, state: OrchestratorState) -> OrchestratorState:
+        user_input = state["user_input"]
         delegated_agent = state["delegated_agent"]
 
-        return {"response": f"Selected {delegated_agent} for agent. And will execute."}
+        agent = registry.get_agent(delegated_agent)
+
+        try:
+            result = await agent.handler(user_input)
+            return {"response": result.model_dump()}
+        except Exception as e:
+            return {"error": [f"Error in executing agent: {e}"]}
 
     def create_orchestrator_graph(self) -> StateGraph:
         graph = StateGraph(OrchestratorState)

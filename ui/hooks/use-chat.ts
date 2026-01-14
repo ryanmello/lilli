@@ -18,9 +18,18 @@ interface UseChatOptions {
 }
 
 interface AIResponse {
-  output: string
+  output: Record<string, unknown>  // Structured output from agent
   agent_name: string
   error: string
+}
+
+function formatOutput(output: Record<string, unknown>): string {
+  // Format structured output for display
+  if (output.query && output.explanation) {
+    return `**SQL Query:**\n\`\`\`sql\n${output.query}\n\`\`\`\n\n**Explanation:** ${output.explanation}`
+  }
+  // Fallback: format as JSON
+  return JSON.stringify(output, null, 2)
 }
 
 async function sendToAPI(userMessage: string): Promise<AIResponse> {
@@ -71,10 +80,12 @@ export function useChat(options: UseChatOptions = {}) {
         setIsLoading(false)
         setIsStreaming(true)
 
+        const formattedOutput = formatOutput(apiResponse.output)
+
         // Simulate streaming effect for better UX
         let currentContent = ""
-        for (let i = 0; i < apiResponse.output.length; i++) {
-          currentContent += apiResponse.output[i]
+        for (let i = 0; i < formattedOutput.length; i++) {
+          currentContent += formattedOutput[i]
           setStreamingContent(currentContent)
           await new Promise((resolve) => setTimeout(resolve, 15))
         }
@@ -82,7 +93,7 @@ export function useChat(options: UseChatOptions = {}) {
         const assistantMessage: Message = {
           id: `assistant-${Date.now()}`,
           role: "assistant",
-          content: apiResponse.output,
+          content: formattedOutput,
           timestamp: new Date(),
           status: "sent",
           agentName: apiResponse.agent_name,
@@ -130,9 +141,11 @@ export function useChat(options: UseChatOptions = {}) {
       setIsLoading(false)
       setIsStreaming(true)
 
+      const formattedOutput = formatOutput(apiResponse.output)
+
       let currentContent = ""
-      for (let i = 0; i < apiResponse.output.length; i++) {
-        currentContent += apiResponse.output[i]
+      for (let i = 0; i < formattedOutput.length; i++) {
+        currentContent += formattedOutput[i]
         setStreamingContent(currentContent)
         await new Promise((resolve) => setTimeout(resolve, 15))
       }
@@ -140,7 +153,7 @@ export function useChat(options: UseChatOptions = {}) {
       const assistantMessage: Message = {
         id: `assistant-${Date.now()}`,
         role: "assistant",
-        content: apiResponse.output,
+        content: formattedOutput,
         timestamp: new Date(),
         status: "sent",
         agentName: apiResponse.agent_name,

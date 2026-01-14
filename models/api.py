@@ -1,11 +1,10 @@
+from typing import Any
 from pydantic import BaseModel
-
-from core.registry import Agent
 
 class AIRequest(BaseModel):
     input: str
 
 class AIResponse(BaseModel):
-    output: str
+    output: dict[str, Any]
     agent_name: str
     error: str
