@@ -2,30 +2,41 @@
 
 import { useState, useCallback } from "react"
 
+const API_BASE_URL = "http://localhost:8000/api"
+
 export interface Message {
   id: string
   role: "user" | "assistant"
   content: string
   timestamp: Date
   status: "sent" | "sending" | "error"
+  agentName?: string
 }
 
 interface UseChatOptions {
   onError?: (error: Error) => void
 }
 
-// Simulated AI response for demo purposes
-async function simulateAIResponse(userMessage: string): Promise<string> {
-  await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 1000))
-  
-  const responses = [
-    `I understand you're asking about "${userMessage}". Let me help you with that.\n\nHere's what I think might be useful for you...`,
-    `Great question! When it comes to "${userMessage}", there are a few things to consider.\n\nFirst, let me break this down for you.`,
-    `Thanks for reaching out! I'd be happy to help with "${userMessage}".\n\nHere's my take on this...`,
-    `Interesting topic! "${userMessage}" is something I can definitely assist with.\n\nLet me share some thoughts.`,
-  ]
-  
-  return responses[Math.floor(Math.random() * responses.length)]
+interface AIResponse {
+  output: string
+  agent_name: string
+  error: string
+}
+
+async function sendToAPI(userMessage: string): Promise<AIResponse> {
+  const response = await fetch(`${API_BASE_URL}/process_request`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ input: userMessage }),
+  })
+
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status} ${response.statusText}`)
+  }
+
+  return response.json()
 }
 
 export function useChat(options: UseChatOptions = {}) {
@@ -50,18 +61,20 @@ export function useChat(options: UseChatOptions = {}) {
       setError(null)
 
       try {
-        // Simulate typing delay
-        await new Promise((resolve) => setTimeout(resolve, 500))
+        // Get AI response from API
+        const apiResponse = await sendToAPI(content)
+
+        if (apiResponse.error) {
+          throw new Error(apiResponse.error)
+        }
+
         setIsLoading(false)
         setIsStreaming(true)
 
-        // Get AI response
-        const response = await simulateAIResponse(content)
-
-        // Simulate streaming effect
+        // Simulate streaming effect for better UX
         let currentContent = ""
-        for (let i = 0; i < response.length; i++) {
-          currentContent += response[i]
+        for (let i = 0; i < apiResponse.output.length; i++) {
+          currentContent += apiResponse.output[i]
           setStreamingContent(currentContent)
           await new Promise((resolve) => setTimeout(resolve, 15))
         }
@@ -69,9 +82,10 @@ export function useChat(options: UseChatOptions = {}) {
         const assistantMessage: Message = {
           id: `assistant-${Date.now()}`,
           role: "assistant",
-          content: response,
+          content: apiResponse.output,
           timestamp: new Date(),
           status: "sent",
+          agentName: apiResponse.agent_name,
         }
 
         setMessages((prev) => [...prev, assistantMessage])
@@ -107,15 +121,18 @@ export function useChat(options: UseChatOptions = {}) {
     setError(null)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      const apiResponse = await sendToAPI(lastUserMessage.content)
+
+      if (apiResponse.error) {
+        throw new Error(apiResponse.error)
+      }
+
       setIsLoading(false)
       setIsStreaming(true)
 
-      const response = await simulateAIResponse(lastUserMessage.content)
-
       let currentContent = ""
-      for (let i = 0; i < response.length; i++) {
-        currentContent += response[i]
+      for (let i = 0; i < apiResponse.output.length; i++) {
+        currentContent += apiResponse.output[i]
         setStreamingContent(currentContent)
         await new Promise((resolve) => setTimeout(resolve, 15))
       }
@@ -123,9 +140,10 @@ export function useChat(options: UseChatOptions = {}) {
       const assistantMessage: Message = {
         id: `assistant-${Date.now()}`,
         role: "assistant",
-        content: response,
+        content: apiResponse.output,
         timestamp: new Date(),
         status: "sent",
+        agentName: apiResponse.agent_name,
       }
 
       setMessages((prev) => [...prev, assistantMessage])

@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config.settings import settings
 from utils.logger import setup_logging, get_logger
 from services.websocket import websocket_service
+from core.setup import register_agents
 
 setup_logging(level=settings.LOG_LEVEL)
 logger = get_logger(__name__)
@@ -31,6 +32,8 @@ async def startup_event():
         raise ValueError("OPENAI_API_KEY is required but not set in environment variables")
     if not settings.SUPABASE_DATABASE_URL:
         raise ValueError("SUPABASE_DATABASE_URL is required but not set in environment variables")
+    
+    register_agents()
 
 async def shutdown_event():
     for task_id in list(websocket_service.active_connections.keys()):
