@@ -25,7 +25,7 @@ class BaseAgent(ABC):
         # used in reasoning node
         self.llm_with_tools = base_llm.bind_tools(self.tools)
         
-        # used in respond node to format final output
+        # used at the end of handler to enforce output schema
         self.structured_llm = base_llm.with_structured_output(self.output_schema)
     
     async def agent_node(self, state: BaseAgentState) -> BaseAgentState:
