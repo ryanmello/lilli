@@ -79,8 +79,6 @@ class Orchestrator:
         return graph.compile()
     
     async def orchestrate(self, user_input: str) -> OrchestratorResponse:
-        print(user_input)
-
         graph = self.create_orchestrator_graph()
 
         initial_state: OrchestratorState = {
