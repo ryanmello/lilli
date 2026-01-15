@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from agents.base_agent import BaseAgent
 from tools.execute_query import execute_query
 
-class SQLAgentOutput(BaseModel):
+class DataAgentOutput(BaseModel):
     message: str = Field(description="Natural language message summarizing the query results")
     data: Optional[List[Dict[str, Any]]] = Field(default=None, description="The raw data rows returned from the query")
     columns: Optional[List[str]] = Field(default=None, description="Column names for table rendering")
@@ -12,8 +12,8 @@ class SQLAgentOutput(BaseModel):
     success: bool = Field(description="Whether the query executed successfully")
     error: Optional[str] = Field(default=None, description="Error message if the query failed")
 
-class SQLAgent(BaseAgent):
-    name = "sql_agent"
+class DataAgent(BaseAgent):
+    name = "data_agent"
     description = "Answers data questions by querying the database."
     instructions = "Use this agent when the user asks questions about their data, wants to retrieve information from the database, or needs to create, update, or delete records."
     system_prompt = """
@@ -55,7 +55,7 @@ class SQLAgent(BaseAgent):
     - For large result sets, consider using LIMIT unless the user needs all rows
     - Provide context and insights about the data, not just raw numbers
     """
-    output_schema = SQLAgentOutput
+    output_schema = DataAgentOutput
     tools = [execute_query]
 
-sql_agent = SQLAgent()
+data_agent = DataAgent()
