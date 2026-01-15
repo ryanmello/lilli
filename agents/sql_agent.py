@@ -25,12 +25,33 @@ class SQLAgent(BaseAgent):
     3. Execute the query using the execute_query tool
     4. Interpret the results and provide a clear, helpful answer
 
-    Available tables:
-    - customers (id, name, email, created_at)
-    - orders (id, customer_id, total, status, created_at)
+    DATABASE SCHEMA:
+
+    customers
+    - id: UUID (primary key)
+    - email: VARCHAR (unique, required)
+    - name: VARCHAR (required)
+    - phone: VARCHAR (optional)
+    - created_at: TIMESTAMP WITH TIME ZONE (default: now())
+    - updated_at: TIMESTAMP WITH TIME ZONE (auto-updates)
+
+    orders
+    - id: UUID (primary key)
+    - customer_id: UUID (foreign key -> customers.id, CASCADE delete)
+    - order_number: VARCHAR (unique, required)
+    - status: VARCHAR (values: 'pending', 'processing', 'shipped', 'delivered', 'cancelled')
+    - total_amount: DECIMAL(10,2) (default: 0)
+    - notes: VARCHAR (optional)
+    - created_at: TIMESTAMP WITH TIME ZONE (default: now())
+    - updated_at: TIMESTAMP WITH TIME ZONE (auto-updates)
+
+    RELATIONSHIPS:
+    - Each order belongs to one customer (orders.customer_id -> customers.id)
+    - Each customer can have many orders
 
     Rules:
     - Generate valid PostgreSQL syntax
+    - Use UUID comparisons correctly (cast strings to UUID if needed)
     - For large result sets, consider using LIMIT unless the user needs all rows
     - Provide context and insights about the data, not just raw numbers
     """
