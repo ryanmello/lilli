@@ -24,10 +24,53 @@ interface AIResponse {
 }
 
 function formatOutput(output: Record<string, unknown>): string {
-  // Format structured output for display
+  // Handle SQL Agent output format
+  if ('message' in output && 'success' in output) {
+    const parts: string[] = []
+    
+    // Show error if failed
+    if (!output.success && output.error) {
+      parts.push(`**Error:** ${output.error}`)
+      return parts.join('\n\n')
+    }
+    
+    // Show the natural language message/answer
+    if (output.message) {
+      parts.push(String(output.message))
+    }
+    
+    // Show data as a table if available
+    if (output.data && Array.isArray(output.data) && output.data.length > 0) {
+      const columns = output.columns as string[] || Object.keys(output.data[0] as Record<string, unknown>)
+      
+      // Build markdown table
+      const headerRow = `| ${columns.join(' | ')} |`
+      const separatorRow = `| ${columns.map(() => '---').join(' | ')} |`
+      const dataRows = (output.data as Record<string, unknown>[]).map(row => 
+        `| ${columns.map(col => String(row[col] ?? '')).join(' | ')} |`
+      ).join('\n')
+      
+      parts.push(`\n${headerRow}\n${separatorRow}\n${dataRows}`)
+    }
+    
+    // Show row count for mutations without data
+    if (!output.data && typeof output.row_count === 'number' && output.row_count > 0) {
+      parts.push(`*${output.row_count} row(s) affected*`)
+    }
+    
+    // Show the SQL query for transparency
+    if (output.query) {
+      parts.push(`<details>\n<summary>SQL Query</summary>\n\n\`\`\`sql\n${output.query}\n\`\`\`\n</details>`)
+    }
+    
+    return parts.join('\n\n')
+  }
+  
+  // Legacy format: query + explanation
   if (output.query && output.explanation) {
     return `**SQL Query:**\n\`\`\`sql\n${output.query}\n\`\`\`\n\n**Explanation:** ${output.explanation}`
   }
+  
   // Fallback: format as JSON
   return JSON.stringify(output, null, 2)
 }

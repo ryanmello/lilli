@@ -4,6 +4,8 @@ import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Copy, RotateCcw, Check, Sparkles, User } from "lucide-react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface MessageBubbleProps {
   role: "user" | "assistant"
@@ -56,13 +58,17 @@ export function MessageBubble({
         {/* Message content */}
         <div
           className={cn(
-            "rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap",
+            "rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
             isUser
-              ? "bg-primary text-primary-foreground rounded-br-md"
-              : "bg-muted text-foreground rounded-bl-md"
+              ? "bg-primary text-primary-foreground rounded-br-md whitespace-pre-wrap"
+              : "bg-muted text-foreground rounded-bl-md markdown-content"
           )}
         >
-          {content}
+          {isUser ? (
+            content
+          ) : (
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+          )}
           {isStreaming && (
             <span className="inline-block w-1.5 h-4 bg-current ml-1 animate-pulse" />
           )}

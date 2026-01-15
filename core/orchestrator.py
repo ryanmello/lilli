@@ -56,12 +56,16 @@ class Orchestrator:
         user_input = state["user_input"]
         delegated_agent = state["delegated_agent"]
 
+        logger.info(f"[orchestrator] Delegating to agent: {delegated_agent}")
+        
         agent = registry.get_agent(delegated_agent)
 
         try:
             result = await agent.handler(user_input)
+            logger.info(f"[orchestrator] Agent {delegated_agent} completed successfully")
             return {"response": result.model_dump()}
         except Exception as e:
+            logger.error(f"[orchestrator] Agent {delegated_agent} failed: {e}")
             return {"error": [f"Error in executing agent: {e}"]}
 
     def create_orchestrator_graph(self) -> StateGraph:
@@ -79,6 +83,8 @@ class Orchestrator:
         return graph.compile()
     
     async def orchestrate(self, user_input: str) -> OrchestratorResponse:
+        logger.info(f"[orchestrator] Starting orchestration...")
+        
         graph = self.create_orchestrator_graph()
 
         initial_state: OrchestratorState = {
@@ -95,6 +101,11 @@ class Orchestrator:
             response=result["response"],
             error=result["error"]
         )
+
+        if response["error"]:
+            logger.warning(f"[orchestrator] Completed with errors: {response['error']}")
+        else:
+            logger.info(f"[orchestrator] Completed successfully. Agent: {response['delegated_agent']}")
 
         return response
 
